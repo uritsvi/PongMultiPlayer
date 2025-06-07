@@ -4,3 +4,10 @@ class KeyDownEvent:
 
     def get_key(self):
         return self.key
+
+class KeyUpEvent:
+    def __init__(self, key: str):
+        self.key: str = key
+
+    def get_key(self):
+        return self.key

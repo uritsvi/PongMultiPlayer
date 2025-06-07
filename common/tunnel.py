@@ -9,27 +9,21 @@ from common.networking import Networking
 
 
 class Tunnel:
-    def __init__(self, conn: Networking, sending, networking=None):
-        self.__conn = conn
+    def __init__(self, conn: Networking, sending):
+        self.conn = conn
 
-        self.__sending = sending
-        self.__thread = None
+        self.sending = sending
+        self.thread = None
 
-        self.__queue = queue.Queue()
+        self.queue = queue.Queue()
 
-        if networking is not None:
-            self.__init_tunnel(networking)
-
-    def __init_tunnel(self, networking):
-        self.__thread = threading.Thread(
-            target=self.__thread_worker,
-            args=(networking, )
+    def start_tunnel(self):
+        self.thread = threading.Thread(
+            target=self.thread_worker,
+            args=(self.conn, )
         ).start()
 
-    def connect(self):
-        self.__init_tunnel(self.__conn)
-
-    def __make_user_id(self):
+    def make_user_id(self):
 
         hostname = socket.gethostname()
         local_ip = socket.gethostbyname(hostname)
@@ -37,33 +31,50 @@ class Tunnel:
         user_id = f"{local_ip}_{os.getpid()}"
         return user_id
 
-    def __sending_thread(self, networking: Networking):
-        logging.info("Started sending tunnel started")
-        networking.send(b"{self.__make_user_id()}{common.SEP}{common.SEND_TUNNEL_TYPE}")
+    def sending_thread(self, networking: Networking):
+        print("Start sending thread", networking.sock.getsockname())
 
-    def __receiving_thread(self, networking: Networking):
-        logging.info("Started receiving tunnel started")
-        networking.send(b"{self.__make_user_id()}{common.SEP}{common.RECEIVE_TUNNEL_TYPE}")
+        while True:
+            data = self.queue.get()
+            print("new data in tunnel")
+            networking.send(data)
+            logging.debug(f"Sent data from tunnel")
 
-    def __thread_worker(self, networking: Networking):
-        if self.__sending:
-          self.__sending_thread(networking)
+    def receiving_thread(self, networking: Networking):
+        print("Start receiving thread", networking.sock.getsockname())
+
+        while True:
+            data = networking.receive()
+            print("reacived")
+            if data is None:
+                logging.warning(f"Tunnel received None, closing tunnel")
+                break
+            logging.debug(f"Received data in tunnel ")
+            self.queue.put(data)
+
+    def thread_worker(self, networking: Networking):
+        if self.sending:
+          self.sending_thread(networking)
           return
-        self.__receiving_thread(networking)
+        self.receiving_thread(networking)
 
     def push_data(self, data):
-        assert self.__sending
-        self.__queue.put_nowait(data)
+        assert self.sending
+
+        print("pushing data to tunnel", self.conn.sock.getsockname())
+        self.queue.put(data)
 
     def pull_data(self):
-        assert not self.__sending, "Tunnel type is sender"
-        return self.__queue.get_nowait()
+        assert not self.sending, "Tunnel type is sender"
+        return self.queue.get_nowait()
 
     def have_new_data(self):
-        return not self.__queue.empty()
+        return not self.queue.empty()
 
     def is_sending(self):
-        return self.__sending
+        return self.sending
 
     def wait_for_connection(self):
-        self.__conn.wait_for_connection()
+        print(self.sending, self.conn.sock.getsockname())
+
+        self.conn = self.conn.wait_for_connection()

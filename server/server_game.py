@@ -1,6 +1,9 @@
+import pickle
 import socket
+import time
 from typing import List
 
+from common.common import EVENTS_LIST_MSG, SEP
 from common.networking import Networking
 from common.player_tunnels import PlayerTunnels
 from common.scence_builders.pong_builder import build_pong_scene
@@ -39,15 +42,26 @@ class Game:
     def wait_for_connections(self):
         for player_tunnels in self.players_tunnels:
             player_tunnels.wait_for_connection()
+            player_tunnels.start_tunnels()
 
     def run(self):
         self.wait_for_connections()
         print("All sockets are connected")
 
-        inputs = [None] * self.number_of_players
         while True:
+
+            inputs = [None] * self.number_of_players
             for i, player_tunnel in enumerate(self.players_tunnels):
                 if player_tunnel.get_recv_tunnel().have_new_data():
-                    inputs[i] = player_tunnel.get_recv_tunnel().pull_data()
+                    data = player_tunnel.get_recv_tunnel().pull_data()
+                    if data.startswith(EVENTS_LIST_MSG.encode()):
+                        events = data.split(SEP.encode())[1:-1]
+                        all_input = []
+                        for event in events:
+                            all_input.append(pickle.loads(event))
+                        inputs[i] = all_input
 
-            # Update all entities based on inputs
+            time.sleep(0.5)
+
+
+            self.current_scene.update(inputs)

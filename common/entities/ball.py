@@ -3,7 +3,7 @@ from common.entity import Entity
 
 class Ball(Entity):
     def update(self, inputs):
-        pass
+        print("Update ball", inputs)
 
     def render(self, window):
-        pass
+        print("Render Ball")

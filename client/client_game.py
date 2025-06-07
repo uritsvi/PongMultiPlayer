@@ -1,3 +1,6 @@
+import pickle
+import time
+
 from common.common import SERVER_ADDRESS, EVENTS_LIST_MSG, SEP
 from common.networking import Networking
 from common.player_tunnels import PlayerTunnels
@@ -22,15 +25,19 @@ class Game:
 
         self.player_tunnels = PlayerTunnels(
             send_conn,
-            recv_conn
+            recv_conn,
+            server=False
         )
+        self.player_tunnels.start_tunnels()
 
     def send_events(self, events):
         out = f"{EVENTS_LIST_MSG}{SEP}".encode()
         for event in events:
-            out += event.encode() + SEP.encode()
+            out += pickle.dumps(event) + SEP.encode()
+            print("New evevnt")
 
-        self.player_tunnels.get_send_tunnel().push_data(out)
+        if len(events) > 0:
+            self.player_tunnels.get_send_tunnel().push_data(out)
 
 
     def run(self):
@@ -43,6 +50,9 @@ class Game:
             self.send_events(events)
 
             self.window.render()
+
+            print("aaaaaaaaa")
+            time.sleep(0.5)
 
         self.window.close()
         print("Game ended")

@@ -67,6 +67,8 @@ class ConnectScreen:
             raise Exception("Game start message not received correctly")
 
         send_port = game_started.split(SEP)[1]
+        print("send port", send_port)
+
         recv_port = game_started.split(SEP)[2]
 
         return send_port, recv_port

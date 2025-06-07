@@ -2,6 +2,9 @@ import pygame
 
 import pygame.key
 
+from common.input import KeyDownEvent, KeyUpEvent
+
+
 class Window:
     WIDTH = 800
     HEIGHT = 600
@@ -30,7 +33,12 @@ class Window:
                     continue
                 else:
                     out.append(KeyDownEvent(pygame.key.name(event.key)))
-
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_ESCAPE:
+                    self.__running = False
+                    continue
+                else:
+                    out.append(KeyUpEvent(pygame.key.name(event.key)))
         return out
 
     def render(self):
