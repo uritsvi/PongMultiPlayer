@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import pygame.color
 
 from common.entity import Entity
@@ -38,18 +40,25 @@ class Paddle(Entity):
             elif current_input.get_type() == KEY_DOWN_TYPE and current_input.get_key() == self.DOWN_KEY:
                 self.down = True
 
+    def position_in_screen(self, position):
+        return -1 <= position.y - self.HEIGHT and position.y + self.HEIGHT <= 1
+
     def update(self, inputs, current_scene):
         print(inputs)
         my_input = inputs[self.input_index]
         if my_input is not None:
             self.update_input(my_input)
 
+        next_pos = deepcopy(self.position)
         if self.up:
             print("Moving paddle up")
-            self.position.y += self.SPEED
+            next_pos.y += self.SPEED
         if self.down:
             print("Moving paddle down")
-            self.position.y -= self.SPEED
+            next_pos.y -= self.SPEED
+        if self.position_in_screen(next_pos):
+            self.position = next_pos
+
         return True
 
 
