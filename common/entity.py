@@ -1,11 +1,13 @@
 from abc import abstractmethod
 
+from common.vec2 import Vec2
+
+
 class Entity:
     NEXT_ID = 0
 
     def __init__(self):
-        self.x = 0
-        self.y = 0
+        self.position = Vec2(0, 0)
 
         self.id = self.NEXT_ID
         self.NEXT_ID += 1
