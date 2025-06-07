@@ -1,9 +1,6 @@
-from copyreg import pickle
-
-import pickle
-
 from common.base_scene import BaseScene
 from common.common import SEP
+from common.pickle_base64 import pickle_loads_base64
 
 
 class ClientScene:
@@ -16,9 +13,12 @@ class ClientScene:
         if events is None:
             return
 
+        print(len(events), "events received from server")
+        print(events)
         events = events.split(SEP.encode())[:-1]
         for event in events:
-            event = pickle.loads(event)
+            print(len(event))
+            event = pickle_loads_base64(event)
             event.apply_to_client(self.base_scene)
 
 

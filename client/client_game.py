@@ -1,9 +1,8 @@
-import pickle
-
 from client_scene import ClientScene
 from common.common import SERVER_ADDRESS, USER_EVENTS_LIST_MSG, SEP
 from common.fps import Fps
 from common.networking import Networking
+from common.pickle_base64 import pickle_dumps_base64
 from common.player_tunnels import PlayerTunnels
 from window import Window
 
@@ -14,8 +13,7 @@ class Game:
         self.recv_port = recv_port
 
         self.player_tunnels: PlayerTunnels = None
-
-        self.window = Window()
+        self.window = None
 
 
     def connect_tunnels(self):
@@ -32,7 +30,7 @@ class Game:
     def send_events_to_server(self, events):
         out = f"{USER_EVENTS_LIST_MSG}{SEP}".encode()
         for event in events:
-            out += pickle.dumps(event) + SEP.encode()
+            out += pickle_dumps_base64(event) + SEP.encode()
 
         if len(events) > 0:
             self.player_tunnels.get_send_tunnel().push_data(out)
@@ -43,6 +41,8 @@ class Game:
         return events
 
     def run(self):
+        self.window = Window()
+
         print("Game started")
         self.window.create()
         self.connect_tunnels()

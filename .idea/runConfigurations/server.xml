@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="client" type="PythonConfigurationType" factoryName="Python" singleton="false">
+  <configuration default="false" name="server" type="PythonConfigurationType" factoryName="Python" singleton="false">
     <module name="PongMultiPlayer" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
@@ -24,7 +24,7 @@
         <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
       </ENTRIES>
     </EXTENSION>
-    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/client/main.py" />
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/server/main.py" />
     <option name="PARAMETERS" value="" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />

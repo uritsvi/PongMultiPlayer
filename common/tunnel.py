@@ -37,9 +37,7 @@ class Tunnel:
 
             while True:
                 data = self.queue.get()
-                print("new data in tunnel")
                 networking.send(data)
-                logging.debug(f"Sent data from tunnel")
         except Exception as e:
             logging.error(f"Error in sending thread: {e}")
             print(f"Error in sending thread: {e}")
@@ -71,7 +69,6 @@ class Tunnel:
     def push_data(self, data):
         assert self.sending
 
-        print("pushing data to tunnel", self.conn.sock.getsockname())
         self.queue.put(data)
 
     def pull_data(self):

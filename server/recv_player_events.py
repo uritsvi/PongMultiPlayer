@@ -1,6 +1,5 @@
-import pickle
-
 from common.common import USER_EVENTS_LIST_MSG, SEP
+from common.pickle_base64 import pickle_loads_base64
 
 
 class RecvPlayerEvents:
@@ -17,6 +16,8 @@ class RecvPlayerEvents:
                     events = data.split(SEP.encode())[1:-1]
                     all_input = []
                     for event in events:
-                        all_input.append(pickle.loads(event))
+                        all_input.append(pickle_loads_base64(event))
                     inputs[i] = all_input
+
+        return inputs
 

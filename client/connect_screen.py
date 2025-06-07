@@ -43,6 +43,7 @@ class ConnectScreen:
         self.main_screen()
         self.send_port = None
         self.recv_port = None
+        self.thread = None
 
     def clear_screen(self):
         for widget in self.root.winfo_children():
@@ -64,7 +65,7 @@ class ConnectScreen:
 
         game_started = str(game_started.decode())
         if not game_started.startswith(MATCH_MAKER_GAME_START):
-            raise Exception("Game start message not received correctly")
+            return None, None
 
         send_port = game_started.split(SEP)[1]
         print("send port", send_port)

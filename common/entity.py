@@ -1,11 +1,11 @@
 from abc import abstractmethod
 
-
 class Entity:
     NEXT_ID = 0
 
     def __init__(self):
-        self.position = (0, 0)
+        self.x = 0
+        self.y = 0
 
         self.id = self.NEXT_ID
         self.NEXT_ID += 1
