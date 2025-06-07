@@ -1,10 +1,10 @@
 import pickle
-import time
 
-from common.common import SERVER_ADDRESS, EVENTS_LIST_MSG, SEP
+from client_scene import ClientScene
+from common.common import SERVER_ADDRESS, USER_EVENTS_LIST_MSG, SEP
+from common.fps import Fps
 from common.networking import Networking
 from common.player_tunnels import PlayerTunnels
-from common.scence_builders.pong_builder import build_pong_scene
 from window import Window
 
 
@@ -16,7 +16,6 @@ class Game:
         self.player_tunnels: PlayerTunnels = None
 
         self.window = Window()
-        self.current_scene = build_pong_scene()
 
 
     def connect_tunnels(self):
@@ -30,29 +29,38 @@ class Game:
         )
         self.player_tunnels.start_tunnels()
 
-    def send_events(self, events):
-        out = f"{EVENTS_LIST_MSG}{SEP}".encode()
+    def send_events_to_server(self, events):
+        out = f"{USER_EVENTS_LIST_MSG}{SEP}".encode()
         for event in events:
             out += pickle.dumps(event) + SEP.encode()
-            print("New evevnt")
 
         if len(events) > 0:
             self.player_tunnels.get_send_tunnel().push_data(out)
 
+
+    def poll_events_from_server(self):
+        events = self.player_tunnels.get_recv_tunnel().pull_data()
+        return events
 
     def run(self):
         print("Game started")
         self.window.create()
         self.connect_tunnels()
 
-        while self.window.is_running():
-            events = self.window.poll_events()
-            self.send_events(events)
+        scene = ClientScene(self.player_tunnels)
+        fps = Fps()
 
+        while self.window.is_running():
+            fps.start_frame()
+
+            events = self.window.poll_events()
+            self.send_events_to_server(events)
+
+            scene.update_game(self.window)
             self.window.render()
 
-            print("aaaaaaaaa")
-            time.sleep(0.5)
+            fps.end_frame()
+
 
         self.window.close()
         print("Game ended")

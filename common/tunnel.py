@@ -32,25 +32,35 @@ class Tunnel:
         return user_id
 
     def sending_thread(self, networking: Networking):
-        print("Start sending thread", networking.sock.getsockname())
+        try:
+            print("Start sending thread", networking.sock.getsockname())
 
-        while True:
-            data = self.queue.get()
-            print("new data in tunnel")
-            networking.send(data)
-            logging.debug(f"Sent data from tunnel")
+            while True:
+                data = self.queue.get()
+                print("new data in tunnel")
+                networking.send(data)
+                logging.debug(f"Sent data from tunnel")
+        except Exception as e:
+            logging.error(f"Error in sending thread: {e}")
+            print(f"Error in sending thread: {e}")
+            return
+
 
     def receiving_thread(self, networking: Networking):
-        print("Start receiving thread", networking.sock.getsockname())
+        try:
+            print("Start receiving thread", networking.sock.getsockname())
 
-        while True:
-            data = networking.receive()
-            print("reacived")
-            if data is None:
-                logging.warning(f"Tunnel received None, closing tunnel")
-                break
-            logging.debug(f"Received data in tunnel ")
-            self.queue.put(data)
+            while True:
+                data = networking.receive()
+                if data is None:
+                    logging.warning(f"Tunnel received None, closing tunnel")
+                    break
+                logging.debug(f"Received data in tunnel ")
+                self.queue.put(data)
+        except Exception as e:
+            logging.error(f"Error in receiving thread: {e}")
+            print(f"Error in receiving thread: {e}")
+            return
 
     def thread_worker(self, networking: Networking):
         if self.sending:
@@ -66,6 +76,8 @@ class Tunnel:
 
     def pull_data(self):
         assert not self.sending, "Tunnel type is sender"
+        if self.queue.empty():
+            return None
         return self.queue.get_nowait()
 
     def have_new_data(self):

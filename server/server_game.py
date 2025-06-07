@@ -1,19 +1,18 @@
-import pickle
 import socket
-import time
 from typing import List
 
-from common.common import EVENTS_LIST_MSG, SEP
+from common.fps import Fps
 from common.networking import Networking
 from common.player_tunnels import PlayerTunnels
-from common.scence_builders.pong_builder import build_pong_scene
+from recv_player_events import RecvPlayerEvents
+from pong_builder import build_pong_scene
+from send_player_events import SendPlayerEvents
 
 
 class Game:
     def __init__(self, number_of_players):
         self.players_tunnels: List[PlayerTunnels] = []
         self.number_of_players = number_of_players
-        self.current_scene = build_pong_scene()
 
     def create_conn(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -48,20 +47,17 @@ class Game:
         self.wait_for_connections()
         print("All sockets are connected")
 
+        send_player_events = SendPlayerEvents(self.players_tunnels)
+        recv_player_events = RecvPlayerEvents(self.players_tunnels, self.number_of_players)
+
+        self.current_scene = build_pong_scene(send_player_events)
+        fps = Fps()
+
         while True:
+            fps.start_frame()
 
-            inputs = [None] * self.number_of_players
-            for i, player_tunnel in enumerate(self.players_tunnels):
-                if player_tunnel.get_recv_tunnel().have_new_data():
-                    data = player_tunnel.get_recv_tunnel().pull_data()
-                    if data.startswith(EVENTS_LIST_MSG.encode()):
-                        events = data.split(SEP.encode())[1:-1]
-                        all_input = []
-                        for event in events:
-                            all_input.append(pickle.loads(event))
-                        inputs[i] = all_input
-
-            time.sleep(0.5)
-
-
+            inputs = recv_player_events.get_player_events()
             self.current_scene.update(inputs)
+
+            fps.end_frame()
+
