@@ -1,5 +1,7 @@
 from abc import abstractmethod
 
+from win32comext.mapi.mapitags import PR_MOVE_TO_FOLDER_ENTRYID
+
 from common.base_scene import BaseScene
 
 

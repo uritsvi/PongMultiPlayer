@@ -15,4 +15,6 @@ class Fps:
         """End the frame timer and return the elapsed time."""
         elapsed_time = time.time() - self.start_time
         sleep_time = max(0, TARGET_FRAME_TIME - elapsed_time)
-        time.sleep(sleep_time)
+
+        if sleep_time > 0:
+            time.sleep(sleep_time)

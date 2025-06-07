@@ -17,10 +17,9 @@ class ServerScene:
 
     def update(self, inputs):
         for entity in self.base_scene.get_entities():
-            entity.update(inputs)
-            self.send_player_events.send_player_entity_updated(entity)
+            send_entity_update = entity.update(inputs, self)
+            if send_entity_update:
+                self.send_player_events.send_player_entity_updated(entity)
+
         self.send_player_events.finish_frame()
 
-    def render(self, window):
-        for entity in self.base_scene.get_entities():
-            entity.render(window)

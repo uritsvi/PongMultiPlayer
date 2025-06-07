@@ -6,7 +6,11 @@ class BaseScene:
         self.entities.append(entity)
 
     def remove_entity(self, entity_id):
-        pass
+        for i, entity in enumerate(self.entities):
+            if entity.id == entity_id:
+                del self.entities[i]
+                return
+        raise ValueError("Entity with ID not found in the scene.")
 
     def get_entities(self):
         return self.entities
@@ -22,4 +26,4 @@ class BaseScene:
             if existing_entity.id == entity_id:
                 self.entities[i] = entity
                 return
-        raise ValueError("Entity with ID not found in the scene.")
+        raise ValueError(f"Entity with ID not found in the scene. {entity_id}")

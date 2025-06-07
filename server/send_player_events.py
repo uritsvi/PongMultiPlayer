@@ -21,10 +21,11 @@ class SendPlayerEvents:
 
     def finish_frame(self):
         out = b""
-        print(f"Sending {len(self.events)} events to players")
         for event in self.events:
-            event = pickle_dumps_base64(event)
-            out += event + SEP.encode()
+            print(event, event.entity.id)
+            event_dmp = pickle_dumps_base64(event)
+            out += event_dmp + SEP.encode()
+
         for player_tunnel in self.players_tunnels:
             player_tunnel.get_send_tunnel().push_data(out)
 
