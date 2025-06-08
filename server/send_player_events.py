@@ -22,7 +22,6 @@ class SendPlayerEvents:
     def finish_frame(self):
         out = b""
         for event in self.events:
-            print(event, event.entity.id)
             event_dmp = pickle_dumps_base64(event)
             out += event_dmp + SEP.encode()
 

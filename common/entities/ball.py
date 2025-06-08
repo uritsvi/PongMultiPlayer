@@ -5,7 +5,7 @@ from common.vec2 import Vec2
 
 
 class Ball(Entity):
-    SPEED = 0.005
+    SPEED = 0.01
     WIDTH = 0.075/2
     HEIGHT = 0.1/2
 
